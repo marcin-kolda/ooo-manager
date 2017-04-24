@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Calendar Cleaner - About{% endblock %}
+
+{% block head %}
+
+<div class="row">
+    <p>This simple app automates common tasks when you will be out of office:</p>
+    <ul>
+        <li>Create public event in your calendar - helps other people scheduling meetings when they know that you're out of office</li>
+        <li>If you have team/department shared calendars then this app will search for them and put your name in that calendar</li>
+        <li>Reject all meetings with message why you're out of office</li>
+        <li>If you're the organizer of the event you will grant edit access to guests, so that they can postpone event or cancel conference room when it's not
+            needed
+        </li>
+        <li>Certain meetings when there might be only one attendee attending (e.g. One on One's) will be cancelled</li>
+    </ul>
+</div>
+
+<div class="row">
+    <p>If you want to improve this app, visit <a href="https://github.com/marcin-kolda/ooo-manager" target="_blank">GitHub page</a>.</p>
+</div>
+{% endblock %}
+
+{% block footer_right %}
+{{ version }} {{ git_commit }} {{ build_date }}
+
+{% endblock %}

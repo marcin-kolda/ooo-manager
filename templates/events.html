@@ -1,0 +1,215 @@
+{% extends "base.html" %}
+
+{% block title %}Calendar Cleaner -
+{% if holiday_context.dry_run %}
+Show my events
+{% else %}
+Thank you
+{% endif %}
+{% endblock %}
+
+{% block head %}
+<div class="row">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            {% if holiday_context.dry_run %}
+            <h1 class="panel-title text-center">Step 2 of 2 - What will be done</h1>
+            {% else %}
+            <h1 class="panel-title text-center">Summary</h1>
+            {% endif %}
+        </div>
+    </div>
+    {% if not holiday_context.dry_run %}
+    {% if received_error %}
+    <div class="alert alert-danger" role="alert">
+        <strong>Ooops!</strong> We get some errors, please
+        <a href="/calendar-cleaner/showEvents?start={{ start_date }}&end={{ end_date }}&message={{ holiday_context.message }}&searchCalendars={{ holiday_context.search_calendars }}">try
+            again</a>
+        with the same settings to check the current state of your calendar
+    </div>
+    {% else %}
+    <div class="alert alert-success" role="alert">
+        <strong>Your calendar has been cleaned up!</strong>
+        You have created {{ public_events_created }} public all day events, rejected {{ rejected_events|length }} events and cancelled {{
+        cancelled_events|length
+        }} events.
+        <a href="/calendar-cleaner">Try one more time</a> with different dates
+    </div>
+    {% endif %}
+    {% endif %}
+
+    <form action="/calendar-cleaner/clearEvents" method="post">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                {% if holiday_context.dry_run %}
+                <h1 class="panel-title">Public all day events which will be created <span class="badge">{{ public_events|length }}</span></h1>
+                {% else %}
+                <h1 class="panel-title">Public all day events <span class="badge">{{ public_events|length }}</span></h1>
+                {% endif %}
+            </div>
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <td>Datetime</td>
+                    <td>Event summary</td>
+                    <td>Changes</td>
+                    <td>Calendar</td>
+                </tr>
+                </thead>
+                <tbody>
+                {% for event in public_events %}
+                <tr {% if event.exists %} class="success" {% endif %}>
+                    <td>{{ event.start }} - {{ event.end }}</td>
+                    <td>
+                        {% if event.event_link %}
+                        <a href="{{ event.event_link }}" target="_blank">{{ event.summary }}</a>
+                        {% else %}
+                        {{ event.summary }}
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if event.exists %}
+                    <span class="glyphicon glyphicon-info-sign" aria-hidden="true" data-toggle="tooltip"
+                          title="Event already exists in '{{ event.calendar_name }}' calendar"></span>
+                        {% else %}
+                    <span class="glyphicon glyphicon-ok-sign" aria-hidden="true" data-toggle="tooltip"
+                          title="Create event in '{{ event.calendar_name }}' calendar"></span>
+                        {% endif %}
+                    </td>
+                    <td><a href="{{ event.calendar_link }}" target="_blank">{{ event.calendar_name }}</a></td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="panel panel-default">
+            {% if rejected_events %}
+            <div class="panel-heading">
+                {% if holiday_context.dry_run %}
+                <h1 class="panel-title">Events which will be rejected with "{{ holiday_context.message }}" message
+                    <span class="badge">{{ rejected_events|length }}</span></h1>
+                {% else %}
+                <h1 class="panel-title">Events rejected with "{{ holiday_context.message }}" message
+                    <span class="badge">{{ rejected_events|length }}</span></h1>
+                {% endif %}
+            </div>
+            {{ events(rejected_events) }}
+            {% else %}
+            <div class="panel-heading">
+                <h1 class="panel-title">There are no events to reject.</h1>
+            </div>
+            {% endif %}
+        </div>
+        <div class="panel panel-default" style="margin-bottom: 5px;">
+            {% if cancelled_events %}
+            <div class="panel-heading">
+                {% if holiday_context.dry_run %}
+                <h1 class="panel-title">Events which will be cancelled
+                    <span class="badge">{{ cancelled_events|length }}</span></h1>
+                {% else %}
+                <h1 class="panel-title">Cancelled events
+                    <span class="badge">{{ cancelled_events|length }}</span></h1>
+                {% endif %}
+            </div>
+            {{ events(cancelled_events) }}
+            {% else %}
+            <div class="panel-heading">
+                <h1 class="panel-title">There are no events to cancel.</h1>
+            </div>
+            {% endif %}
+        </div>
+        <input type="hidden" name="start" value="{{ start_date }}"/>
+        <input type="hidden" name="end" value="{{ end_date }}"/>
+        <input type="hidden" name="message" value="{{ holiday_context.message }}"/>
+        <input type="hidden" name="searchCalendars" value="{{ holiday_context.search_calendars }}"/>
+        {% if holiday_context.dry_run %}
+        <div class="panel-body">
+            {% if public_events_created == 0 and rejected_events|length == 0 and cancelled_events|length == 0 %}
+            <div class="alert alert-info" role="alert">
+                There are no changes needed
+            </div>
+            <div>
+                <a class="btn btn-info col-sm-3 col-sm-offset-2"
+                   href="/calendar-cleaner?start={{ start_date }}&end={{ end_date }}&message={{ holiday_context.message }}&searchCalendars={{ holiday_context.search_calendars }}">
+                    <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"/>Back
+                </a>
+                <button type="submit" class="btn btn-primary col-sm-3 col-sm-offset-2" disabled="disabled">Apply to my calendar</button>
+            </div>
+            {% else %}
+            <div class="alert alert-info" role="alert">
+                By clicking "Apply" button below you will create {{ public_events_created }} all day events, reject {{ rejected_events|length
+                }} events and cancel {{
+                cancelled_events|length }} events.
+            </div>
+            <div>
+                <input name="_csrf_token" type="hidden" value="{{ csrf_token }}"/>
+                <a class="btn btn-info col-sm-3 col-sm-offset-2"
+                   href="/calendar-cleaner?start={{ start_date }}&end={{ end_date }}&message={{ holiday_context.message }}&searchCalendars={{ holiday_context.search_calendars }}">
+                    <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"/>Back
+                </a>
+                <button type="submit" class="btn btn-primary col-sm-3 col-sm-offset-2">Apply to my calendar</button>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+    </form>
+</div>
+{% endblock %}
+
+{% macro events(events) -%}
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <td class="col-md-2">Datetime</td>
+        <td class="col-md-3">Event summary</td>
+        <td class="col-md-1">Changes</td>
+    </tr>
+    </thead>
+    <tbody>
+    {% for event in events %}
+    <tr>
+        {% set event_status = event | status %}
+        <td>{{ event|format_dates }}
+        </td>
+        <td>
+            {% if event_status == "accepted" %}
+            <span class="glyphicon glyphicon-ok-sign" aria-hidden="true" data-toggle="tooltip" title="Accepted"></span>
+            {% elif event_status == "tentative" %}
+            <span class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" title="Tentative"></span>
+            {% elif event_status == "declined" %}
+            <span class="glyphicon glyphicon-remove-sign" aria-hidden="true" data-toggle="tooltip" title="Declined"></span>
+            {% elif event_status == "needsAction" %}
+            <span class="glyphicon glyphicon-question-sign" aria-hidden="true" data-toggle="tooltip" title="Needs action"></span>
+            {% endif %}
+            {% if event.recurringEventId %}
+            <span class="glyphicon glyphicon-repeat" aria-hidden="true" data-toggle="tooltip" title="Recurring event"></span>
+            {% endif %}
+            {% if event.organizer.self %}
+            <span class="glyphicon glyphicon-user" aria-hidden="true" data-toggle="tooltip" title="You're the organizer"></span>
+            {% endif %}
+            {% if event.htmlLink %}
+            <a href="{{ event.htmlLink }}" target="_blank">{{ event.summary }}</a>
+            {% else %}
+            {{ event.summary }}
+            {% endif %}
+        </td>
+        <td>
+            {% for update in event['updates'] %}
+            {% if update == "notification" %}
+            <span class="glyphicon glyphicon-envelope" aria-hidden="true" data-toggle="tooltip" title="Send notification"></span>
+            {% elif update == "cancel" %}
+            <span class="glyphicon glyphicon-trash" aria-hidden="true" data-toggle="tooltip" title="Cancel event"></span>
+            {% elif update == "reject" %}
+            <span class="glyphicon glyphicon-remove-sign" aria-hidden="true" data-toggle="tooltip"
+                  title="Reject event with '{{ holiday_context.message }}' message"></span>
+            {% elif update == "edit" %}
+            <span class="glyphicon glyphicon-pencil" aria-hidden="true" data-toggle="tooltip"
+                  title="Grant guests rights to modify event and invite other guests"></span>
+            {% endif %}
+            {% endfor %}
+        </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{%- endmacro %}

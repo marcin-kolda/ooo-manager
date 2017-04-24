@@ -1,0 +1,21 @@
+version: ooo-manager-1-0
+runtime: python27
+api_version: 1
+threadsafe: yes
+
+handlers:
+  - url: /(.+\.(jpg|js|ico|txt|css|png))$
+    static_files: static/\1
+    upload: static/(.*)
+
+  - url: .*
+    script: main.app
+    login: required
+    secure: always
+
+libraries:
+  - name: jinja2
+    version: latest
+  - name: pycrypto
+    version: latest
+   

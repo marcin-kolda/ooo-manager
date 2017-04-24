@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block head %}
+<div class="alert alert-success" style="margin-bottom: 0px;" role="alert">
+    <div class="row">
+        <p class="lead text-center">Easy way to clean up your calendar before you go out of office</p>
+    </div>
+    <div style="font-size: 120%;" class="row">
+        <div class="col-sm-5 col-sm-offset-1">
+            <ul>
+                <li>Reject all meetings for specific period</li>
+            </ul>
+        </div>
+        <div class="col-sm-5">
+            <ul>
+                <li>Block your calendar with all day event</li>
+            </ul>
+        </div>
+    </div>
+    <div style="font-size: 120%;" class="row">
+        <div class="col-sm-5 col-sm-offset-1">
+            <ul>
+                <li>Create event in team calendar</li>
+            </ul>
+        </div>
+        <div class="col-sm-5">
+            <ul>
+                <li>Cancel One-on-One's</li>
+            </ul>
+        </div>
+    </div>
+    <div class="row text-center">
+        <a target="_blank" href="/calendar-cleaner/about">More info ></a>
+    </div>
+</div>
+
+<div style="margin-top:15px"></div>
+
+<div class="row">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h1 class="panel-title text-center">Step 1 of 2</h1>
+        </div>
+        <div class="panel-body">
+            <form class="form-horizontal" action="/calendar-cleaner/showEvents" method="get">
+                <div class="form-group" id="holiday-datepicker">
+                    <label class="col-sm-4 control-label">Select your OOO period</label>
+                    <div class="col-sm-7 input-group input-daterange">
+                        <input type="text" class="form-control" name="start" placeholder="from" value="{{ start_date }}">
+                        <span class="input-group-addon">to</span>
+                        <input type="text" class="form-control" id="end" name="end" placeholder="to" value="{{ end_date }}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label" for="message">Out of office reason</label>
+                    <div class="col-sm-7">
+                        <input type="text" class="form-control" id="message" name="message" value="{{ holiday_context.message }}"
+                               aria-describedby="messageHelpBlock"/>
+                <span id="messageHelpBlock" class="help-block">
+                    E.g. 'Holiday', 'Training' or 'Conference'. All rejected events and notifications will have this message
+                </span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label" for="searchCalendarsFor">Team calendar</label>
+                    <div class="col-sm-7">
+                        <input type="text" class="form-control" id="searchCalendarsFor" name="searchCalendars" value="{{ holiday_context.search_calendars }}"
+                               aria-describedby="searchCalendarsHelpBlock"/>
+                <span id="searchCalendarsHelpBlock" class="help-block">
+                    Search shared team calendars containing text above, so that public events can be created there
+                </span>
+
+                    </div>
+                </div>
+                <div class="col-sm-2 col-sm-offset-5">
+                    <button type="submit" class="btn btn-primary">Next<span class="glyphicon glyphicon-chevron-right" aria-hidden="true"/></button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script type="text/javascript">
+    $('#holiday-datepicker .input-daterange').datepicker({
+        format: "yyyy-mm-dd",
+        todayBtn: "linked",
+        autoclose: true,
+        orientation: 'bottom',
+        weekStart: 1,
+        daysOfWeekHighlighted: '12345',
+        todayHighlight: true
+    });
+</script>
+{% endblock %}
