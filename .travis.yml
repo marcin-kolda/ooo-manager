@@ -20,3 +20,5 @@ deploy:
   version: ooo-manager-1-0
   skip_cleanup: true
   no_promote: true
+after_deploy:
+- git stash --all
