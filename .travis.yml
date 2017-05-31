@@ -13,4 +13,5 @@ deploy:
   keyfile: client-secret.json
   project: out-of-office-manager
   version: ooo-manager-1-0
+  skip_cleanup: true
   no_promote: true
