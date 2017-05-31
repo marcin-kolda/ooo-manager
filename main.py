@@ -97,7 +97,7 @@ def render_events(context):
     received_error = execute_requests(context, rejected_events[1] + cancelled_events[1])
 
     logging.info("Created %d events, rejected %d events, cancelled %d events" % (len(public_events), len(rejected_events[0]), len(cancelled_events[0])))
-    return render_template('events.html',
+    return render_template('events.jinja2',
                            logout_url=users.create_logout_url('/'),
                            received_error=received_error,
                            holiday_context=context,
@@ -190,7 +190,7 @@ def show_events():
         start = validate_date(request.args.get('start', None))
         end = validate_date(request.args.get('end', None))
 
-        return render_template('input_form.html',
+        return render_template('input_form.jinja2',
                                logout_url=users.create_logout_url('/'),
                                holiday_context=context,
                                start_date=start,
@@ -208,7 +208,7 @@ def index():
     end = validate_date(request.args.get('end', None))
     context = create_common_context()
 
-    return render_template('input_form.html',
+    return render_template('input_form.jinja2',
                            logout_url=users.create_logout_url('/'),
                            holiday_context=context,
                            start_date=start,
@@ -220,7 +220,7 @@ def about():
     user_info = get_user_info()
     context = HolidayContext(email=user_info[1], name=user_info[0])
 
-    return render_template('about.html',
+    return render_template('about.jinja2',
                            version=modules.get_current_version_name(),
                            git_commit=settings.GIT_COMMIT,
                            build_date=settings.BUILD_DATE,
@@ -229,12 +229,12 @@ def about():
 
 @app.errorhandler(404)
 def page_not_found(e):
-    return render_template('error404.html'), 404
+    return render_template('error404.jinja2'), 404
 
 
 @app.errorhandler(500)
 def application_error(e):
-    return render_template('error500.html',
+    return render_template('error500.jinja2',
                            error_message='{}'.format(e),
                            request_id=os.environ.get('REQUEST_LOG_ID')), 500
 
