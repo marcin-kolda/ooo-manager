@@ -1,5 +1,5 @@
 #!/bin/bash
-random=`pwgen -s 40 -1`
+random=`openssl rand -base64 32`
 build_date=`date -u +"%Y-%m-%d %H:%M:%S"`
 git_commit=`git rev-parse --short HEAD`
 sed -i -e "s/secret_key_update_before_deployment/${random}/g" settings.py
